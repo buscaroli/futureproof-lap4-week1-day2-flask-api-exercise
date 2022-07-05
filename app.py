@@ -39,25 +39,37 @@ def index():
         return f"{new_card}", 201
 
 
-@app.route('/api/cards/<int:card_id>', methods=["GET", "DELETE"])
+@app.route('/api/cards/<int:card_id>', methods=["GET", "DELETE", "PUT"])
 def card_handler(card_id):
     if request.method == "GET":
         try:
             return next(card for card in cards if card['id'] == card_id)
         except:
             raise NotFound(f"No cards with an ID of {card_id}!")
-    if request.method == "DELETE":
+
+    elif request.method == "DELETE":
         try:
             for card in cards:
-                print(f"* * * {card}")
                 if card["id"] == card_id:
                     cards.remove(card)
             return f"Card removed", 200
         except:
-            raise NotFound(f"No cards with ID {card_id} to delete")
+            raise NotFound(
+                f"No cards with ID {card_id} found. Could not delete")
 
+    elif request.method == "PUT":
+        try:
+            for card in cards:
+                print(f"id is: {card_id}")
+                map(lambda x: x if x["id"] != card_id else req.json(), cards)
+            return f"Card Updated"
+        except:
+            raise NotFound(
+                f"No cards with ID {card_id} found. Could not update.")
 
 # Error handlers
+
+
 @app.errorhandler(NotFound)
 def handle_404(err):
     return jsonify({"error": f"Oops... {err}"}), 404
