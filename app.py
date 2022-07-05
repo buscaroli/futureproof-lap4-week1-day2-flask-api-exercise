@@ -39,13 +39,22 @@ def index():
         return f"{new_card}", 201
 
 
-@app.route('/api/cards/<int:card_id>', methods=["GET"])
+@app.route('/api/cards/<int:card_id>', methods=["GET", "DELETE"])
 def card_handler(card_id):
     if request.method == "GET":
         try:
             return next(card for card in cards if card['id'] == card_id)
         except:
             raise NotFound(f"No cards with an ID of {card_id}!")
+    if request.method == "DELETE":
+        try:
+            for card in cards:
+                print(f"* * * {card}")
+                if card["id"] == card_id:
+                    cards.remove(card)
+            return f"Card removed", 200
+        except:
+            raise NotFound(f"No cards with ID {card_id} to delete")
 
 
 # Error handlers
