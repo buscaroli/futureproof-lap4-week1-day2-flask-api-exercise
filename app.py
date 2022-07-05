@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, render_template
 from flask_cors import CORS
 from werkzeug.exceptions import BadRequest, NotFound
 
@@ -24,12 +24,12 @@ cards = [
 
 
 @app.route('/')
-def home():
-    return jsonify({'message': 'Hello to Cards!'}), 200
+def index():
+    return render_template('index.html', questions=cards)
 
 
 @app.route('/api/cards', methods=['GET', 'POST'])
-def index():
+def home():
     if request.method == 'GET':
         return jsonify(cards)
     elif request.method == 'POST':
@@ -39,13 +39,33 @@ def index():
         return f"{new_card}", 201
 
 
-@app.route('/api/cards/<int:card_id>', methods=["GET"])
+@app.route('/api/cards/<int:card_id>', methods=["GET", "DELETE", "PUT"])
 def card_handler(card_id):
     if request.method == "GET":
         try:
             return next(card for card in cards if card['id'] == card_id)
         except:
             raise NotFound(f"No cards with an ID of {card_id}!")
+
+    elif request.method == "DELETE":
+        try:
+            for card in cards:
+                if card["id"] == card_id:
+                    cards.remove(card)
+            return f"Card removed", 200
+        except:
+            raise NotFound(
+                f"No cards with ID {card_id} found. Could not delete")
+
+    elif request.method == "PUT":
+        try:
+            for card in cards:
+                print(f"id is: {card_id}")
+                map(lambda x: x if x["id"] != card_id else req.json(), cards)
+            return f"Card Updated"
+        except:
+            raise NotFound(
+                f"No cards with ID {card_id} found. Could not update.")
 
 
 # Error handlers
