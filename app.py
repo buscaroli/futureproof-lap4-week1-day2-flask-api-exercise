@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, render_template
 from flask_cors import CORS
 from werkzeug.exceptions import BadRequest, NotFound
 
@@ -24,12 +24,12 @@ cards = [
 
 
 @app.route('/')
-def home():
-    return jsonify({'message': 'Hello to Cards!'}), 200
+def index():
+    return render_template('index.html', questions=cards)
 
 
 @app.route('/api/cards', methods=['GET', 'POST'])
-def index():
+def home():
     if request.method == 'GET':
         return jsonify(cards)
     elif request.method == 'POST':
@@ -67,9 +67,8 @@ def card_handler(card_id):
             raise NotFound(
                 f"No cards with ID {card_id} found. Could not update.")
 
+
 # Error handlers
-
-
 @app.errorhandler(NotFound)
 def handle_404(err):
     return jsonify({"error": f"Oops... {err}"}), 404
